@@ -1,8 +1,13 @@
-# Team 5 Decentralized IAM dApp Smart Contract Draft
+# Decentralized Identity and Access Management (IAM) dApp
+
+## Project Title
+University Credential Verification System
 
 ## Project Description
 
-This repository contains the draft smart contract design for Team 5's decentralized identity and access management dApp. Our project focuses on a university credential verification system in which students act as holders, the university acts as the issuer, and employers or graduate schools act as verifiers. The smart contracts are designed to support decentralized identifiers, academic credential issuance, credential status tracking, and immutable verification logging.
+This repository contains the draft smart contract design for our Decentralized Identity and Access Management (IAM) dApp. Our project focuses on a university credential verification system in which students act as holders, the university acts as the issuer, and employers or graduate schools act as verifiers. The smart contracts are designed to support decentralized identifiers, academic credential issuance, credential status tracking, and immutable verification logging.
+
+The goal of this project is to create a decentralized system that allows students to control their academic identity while still allowing trusted institutions to issue credentials and outside organizations to verify them. Instead of storing full credential data directly on chain, the design stores only minimal on chain references such as hashes, metadata references, and status information. This helps preserve privacy while still using blockchain for trust, transparency, and auditability.
 
 ## Smart Contract Architecture
 
@@ -14,9 +19,11 @@ The design is split into three primary contracts.
 
 `VerificationLog.sol` records verification events in an immutable audit trail without storing private academic data directly on chain.
 
+The `interfaces` folder contains the contract blueprints and expected function definitions, while the main `contracts` folder contains the draft implementations of those contracts.
+
 ## Off Chain Storage Design
 
-The full DID document and full academic credential remain off chain. The blockchain stores only hashes and metadata references. This allows the system to preserve privacy while still giving issuers and verifiers a trusted on chain reference point.
+The full DID document and full academic credential remain off chain. The blockchain stores only hashes and metadata references. This allows the system to preserve privacy while still giving issuers and verifiers a trusted on chain reference point. During verification, the verifier can compare the hash of the off chain credential against the hash stored on chain to confirm the credential has not been changed.
 
 ## Dependencies and Setup
 
@@ -29,8 +36,16 @@ This repository is intended to be used with Hardhat and Solidity `^0.8.20`.
 
 ## Current Draft Status
 
-This is a draft milestone submission focused on contract structure, interfaces, function signatures, and documentation. The contracts are intentionally simple and designed to communicate the intended architecture clearly.
+This is a draft milestone submission focused on contract structure, interfaces, function signatures, and documentation. The contracts are intentionally simple and designed to clearly communicate the planned architecture of the system. This draft is meant to establish the foundation for later implementation and integration.
 
 ## Future Work
 
-Future work includes stronger issuer authorization, richer off chain credential workflows, wallet based identity presentation, and frontend integration for students, issuers, and verifiers.
+Future work includes stronger issuer authorization, richer off chain credential workflows, wallet based identity presentation, and frontend integration for students, issuers, and verifiers. Additional improvements may include more detailed access control, expanded credential types, and a more complete verification flow between all system stakeholders.
+
+## Team Members
+
+Aayush Kumar  
+Colin Mcateer  
+Emmanuel Mnjowe  
+Robert Santana-Silverio  
+Tamasree Sinha
