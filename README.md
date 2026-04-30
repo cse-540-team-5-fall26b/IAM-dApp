@@ -5,42 +5,249 @@ University Credential Verification System
 
 ## Project Description
 
-This repository contains the draft smart contract design for our Decentralized Identity and Access Management (IAM) dApp. Our project focuses on a university credential verification system in which students act as holders, the university acts as the issuer, and employers or graduate schools act as verifiers. The smart contracts are designed to support decentralized identifiers, academic credential issuance, credential status tracking, and immutable verification logging.
+This project is a decentralized identity and academic credential verification dApp built for CSE 540. The system allows students to register decentralized identifiers (DIDs), allows approved university issuers to publish academic credential records, and allows verifiers such as employers or graduate programs to validate credential status and log verification activity.
 
-The goal of this project is to create a decentralized system that allows students to control their academic identity while still allowing trusted institutions to issue credentials and outside organizations to verify them. Instead of storing full credential data directly on chain, the design stores only minimal on chain references such as hashes, metadata references, and status information. This helps preserve privacy while still using blockchain for trust, transparency, and auditability.
+The project uses blockchain for trust, immutability, issuer accountability, and auditability. Sensitive student data and full credential documents are intentionally kept off chain. The smart contracts store only minimal on-chain references such as DIDs, credential hashes, metadata URIs, issuer addresses, credential status, and verification log entries.
+
+## Stakeholders
+
+- **Student / Holder:** owns a DID and presents academic credentials to verifiers.
+- **University / Issuer:** approved authority that issues or revokes credentials.
+- **Verifier:** employer, graduate school, or other relying party that checks credential validity.
+- **Contract Owner / Admin:** deployer account that approves trusted issuers and manages administrative credential status updates.
 
 ## Smart Contract Architecture
 
-The design is split into three primary contracts.
+The implementation is organized around three Solidity contracts:
 
-`DIDRegistry.sol` manages student decentralized identifiers and anchors minimal identity metadata on chain.
+### `DIDRegistry.sol`
+Manages decentralized identifiers. Users can register a DID, update DID metadata, deactivate a DID, resolve DID records, and check whether an address controls a DID.
 
-`AcademicCredentialRegistry.sol` manages university issued academic credentials, including issuance, status tracking, and revocation.
+### `AcademicCredentialRegistry.sol`
+Manages university-issued academic credentials. The contract supports issuer approval, credential issuance, revocation, manual expiration, credential lookup, and validity checks. Issuance is protected by role-based access control through the approved issuer mapping.
 
-`VerificationLog.sol` records verification events in an immutable audit trail without storing private academic data directly on chain.
+### `VerificationLog.sol`
+Records verification events in an immutable audit trail. Verifiers can log whether a credential verification result was valid or invalid without storing private academic records directly on chain.
 
-The `interfaces` folder contains the contract blueprints and expected function definitions, while the main `contracts` folder contains the draft implementations of those contracts.
+## On-Chain and Off-Chain Data Design
 
-## Off Chain Storage Design
+The blockchain stores only the data needed for trust and verification:
 
-The full DID document and full academic credential remain off chain. The blockchain stores only hashes and metadata references. This allows the system to preserve privacy while still giving issuers and verifiers a trusted on chain reference point. During verification, the verifier can compare the hash of the off chain credential against the hash stored on chain to confirm the credential has not been changed.
+- DID identifier
+- DID controller address
+- Public key reference
+- Service endpoint reference
+- DID document hash
+- Credential ID
+- Issuer address
+- Holder DID
+- Credential hash
+- Metadata URI, such as an IPFS reference
+- Credential status
+- Verification event records
 
-## Dependencies and Setup
+Full academic records, transcripts, and personally sensitive details should remain off chain in IPFS, Filecoin, encrypted storage, or another secure off-chain repository. The hash stored on chain allows a verifier to confirm that an off-chain record has not been modified.
 
-This repository is intended to be used with Hardhat and Solidity `^0.8.20`.
+## Tech Stack
 
-1. Install dependencies with `npm install`
-2. Compile the contracts with `npx hardhat compile`
-3. Run tests with `npx hardhat test`
-4. Deploy with `npx hardhat run scripts/deploy.js --network hardhat`
+- Solidity `^0.8.20`
+- Hardhat
+- Ethers.js / Web3.js
+- MetaMask
+- Local Hardhat blockchain
+- Static HTML/CSS/JavaScript frontend
 
-## Current Draft Status
+## Repository Structure
 
-This is a draft milestone submission focused on contract structure, interfaces, function signatures, and documentation. The contracts are intentionally simple and designed to clearly communicate the planned architecture of the system. This draft is meant to establish the foundation for later implementation and integration.
+```text
+contracts/
+  DIDRegistry.sol
+  AcademicCredentialRegistry.sol
+  VerificationLog.sol
+  interfaces/
+    IDIDRegistry.sol
+    IAcademicCredentialRegistry.sol
+    IVerificationLog.sol
 
-## Future Work
+frontend_1/
+  index.html
+  app.js
+  abi/
+    DIDRegistry.json
+    AcademicCredentialRegistry.json
+    VerificationLog.json
 
-Future work includes stronger issuer authorization, richer off chain credential workflows, wallet based identity presentation, and frontend integration for students, issuers, and verifiers. Additional improvements may include more detailed access control, expanded credential types, and a more complete verification flow between all system stakeholders.
+scripts/
+  deploy.js
+
+test/
+  iam.test.js
+
+docs/
+  FINAL_DEMO_TESTING_GUIDE.md
+```
+
+## Installation
+
+Install dependencies from the project root:
+
+```bash
+npm install
+```
+
+Compile the contracts:
+
+```bash
+npx hardhat compile
+```
+
+Run the automated tests:
+
+```bash
+npx hardhat test
+```
+
+## Local Deployment
+
+Open one terminal and start a local Hardhat blockchain:
+
+```bash
+npx hardhat node
+```
+
+Keep this terminal open. It will show local test accounts and private keys.
+
+Open a second terminal and deploy the contracts:
+
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
+
+Copy the three deployed contract addresses printed in the terminal:
+
+```text
+DIDRegistry deployed to: 0x...
+AcademicCredentialRegistry deployed to: 0x...
+VerificationLog deployed to: 0x...
+```
+
+## MetaMask Setup
+
+Add the local Hardhat network to MetaMask:
+
+```text
+Network Name: Hardhat Local
+RPC URL: http://127.0.0.1:8545
+Chain ID: 31337
+Currency Symbol: ETH
+```
+
+Import one of the Hardhat test accounts into MetaMask using a private key from the `npx hardhat node` terminal output.
+
+## Running the Frontend
+
+From the project root:
+
+```bash
+cd frontend_1
+npx live-server
+```
+
+Then open the local browser page, connect MetaMask, paste the deployed contract addresses, and click **Load Contracts**.
+
+## Demo Flow
+
+### 1. DID Registry
+
+Register a DID:
+
+```text
+DID: did:student:100
+Public Key: pubKey100
+Service Endpoint: http://student100.com
+Document Hash: 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+```
+
+Then resolve the DID and confirm the controller address and active status.
+
+### 2. Academic Credential Registry
+
+Before issuing a credential, approve the connected account as an issuer:
+
+```text
+Approve Issuer Address: your connected MetaMask account address
+```
+
+Then check the same address with **Check Issuer**. Expected result:
+
+```text
+Is Approved Issuer: true
+```
+
+Issue a credential:
+
+```text
+Credential ID: cred500
+Holder DID: did:student:100
+Credential Hash: 0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Metadata URI: ipfs://metadata500
+Expires At: 1893456000
+```
+
+Then retrieve the credential and check validity. Expected validity:
+
+```text
+Is Credential Valid: true
+```
+
+### 3. Verification Log
+
+Log a verification event:
+
+```text
+Credential ID: cred500
+Holder Address: any valid Hardhat account address
+Result: Valid
+```
+
+Then retrieve verification index `0` and check total verification count.
+
+## Testing and Error Handling
+
+The automated test suite covers:
+
+- DID registration, resolution, update, controller check, and deactivation
+- Approved issuer flow
+- Credential issuance
+- Rejection of unapproved issuers
+- Credential revocation and validity changes
+- Verification log event creation and retrieval
+
+Run tests with:
+
+```bash
+npx hardhat test
+```
+
+## Security and Privacy Considerations
+
+- Full academic records are not stored directly on chain.
+- Only hashes and metadata references are stored on chain.
+- Credential issuance is restricted to approved issuer addresses.
+- Revocation is limited to the original issuer or contract owner.
+- Verification logs provide auditability without exposing full student records.
+- DID deactivation allows identity records to be marked inactive without deleting blockchain history.
+
+## Limitations and Future Work
+
+Future improvements could include:
+
+- IPFS/Filecoin integration for real credential metadata storage
+- Stronger decentralized governance for issuer approval
+- Zero-knowledge proof support for privacy-preserving verification
+- More complete student, issuer, and verifier role-specific frontend screens
+- Deployment to a public testnet such as Sepolia or Polygon Amoy
+- Better indexing and search support for verification history
 
 ## Team Members
 
