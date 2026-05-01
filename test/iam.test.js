@@ -121,20 +121,72 @@ describe("Team 5 University Credential Verification System", function () {
     expect(await academicRegistry.isCredentialValid("cred-002")).to.equal(false);
   });
 
-  it("logs a verification event for auditability", async function () {
-    const { student, verifier, verificationLog } = await deployContracts();
+  it("approves a verifier", async function () {
+  const { verifier, verificationLog } = await deployContracts();
 
-    await expect(
-      verificationLog.connect(verifier).logVerification("cred-001", student.address, true)
-    ).to.emit(verificationLog, "VerificationLogged");
+  await expect(verificationLog.approveVerifier(verifier.address))
+    .to.emit(verificationLog, "VerifierApproved")
+    .withArgs(verifier.address);
 
-    const count = await verificationLog.getVerificationCount();
-    expect(count).to.equal(1n);
+  expect(await verificationLog.isApprovedVerifier(verifier.address)).to.equal(true);
+});
 
-    const entry = await verificationLog.getVerification(0);
-    expect(entry.credentialId).to.equal("cred-001");
-    expect(entry.verifier).to.equal(verifier.address);
-    expect(entry.holder).to.equal(student.address);
-    expect(entry.result).to.equal(true);
-  });
+it("removes an approved verifier", async function () {
+  const { verifier, verificationLog } = await deployContracts();
+
+  await verificationLog.approveVerifier(verifier.address);
+
+  await expect(verificationLog.removeVerifier(verifier.address))
+    .to.emit(verificationLog, "VerifierRemoved")
+    .withArgs(verifier.address);
+
+  expect(await verificationLog.isApprovedVerifier(verifier.address)).to.equal(false);
+});
+
+it("logs a verification event from an approved verifier", async function () {
+  const { student, verifier, verificationLog } = await deployContracts();
+
+  await verificationLog.approveVerifier(verifier.address);
+
+  await expect(
+    verificationLog.connect(verifier).logVerification("cred-001", student.address, true)
+  ).to.emit(verificationLog, "VerificationLogged");
+
+  const count = await verificationLog.getVerificationCount();
+  expect(count).to.equal(1n);
+
+  const entry = await verificationLog.getVerification(0);
+  expect(entry.credentialId).to.equal("cred-001");
+  expect(entry.verifier).to.equal(verifier.address);
+  expect(entry.holder).to.equal(student.address);
+  expect(entry.result).to.equal(true);
+});
+
+it("rejects verification logging from an unapproved verifier", async function () {
+  const { student, outsider, verificationLog } = await deployContracts();
+  
+  await expect(
+    verificationLog.connect(outsider).logVerification("cred-001", student.address, true)
+  ).to.be.revertedWith("Caller is not an approved verifier");
+});
+
+it("rejects verification logging with an empty credential ID", async function () {
+  const { student, verifier, verificationLog } = await deployContracts();
+
+  await verificationLog.approveVerifier(verifier.address);
+
+  await expect(
+    verificationLog.connect(verifier).logVerification("", student.address, true)
+  ).to.be.revertedWith("Credential ID is required");
+});
+
+it("rejects verification logging with an invalid holder address", async function () {
+  const { verifier, verificationLog } = await deployContracts();
+
+  await verificationLog.approveVerifier(verifier.address);
+
+  await expect(
+    verificationLog.connect(verifier).logVerification("cred-001", ethers.ZeroAddress, true)
+  ).to.be.revertedWith("Invalid holder address");
+});
 });

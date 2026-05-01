@@ -18,6 +18,15 @@ interface IVerificationLog {
         uint256 timestamp
     );
 
+    event VerifierApproved(address indexed verifier);
+    event VerifierRemoved(address indexed verifier);
+
+    function approveVerifier(address verifier) external;
+
+    function removeVerifier(address verifier) external;
+
+    function isApprovedVerifier(address verifier) external view returns (bool);
+
     /// @notice Records that a verifier checked a credential.
     /// @param credentialId The credential that was verified.
     /// @param holder The holder address associated with the verification event.
