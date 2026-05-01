@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IAcademicCredentialRegistry} from "./IAcademicCredentialRegistry.sol";
-
 interface IVerificationLog {
     struct VerificationEntry {
         string credentialId;
