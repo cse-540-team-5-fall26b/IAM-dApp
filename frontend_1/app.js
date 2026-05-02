@@ -99,15 +99,13 @@ function highlightError(id) {
     setTimeout(() => el.style.border = "", 2000);
 }
 
-function requireField(id, label, mlbl=null) {
+function requireField(id, label, mlbl = null) {
     const value = getValue(id);
-   
-    if (!value && mlbl!=null) {
-        setText(mlbl, `${label} is required`);
-        log(`${label} is required`);
-        highlightError(id)
-        return null;
-    }else{
+
+    if (!value) {
+        if (mlbl !== null) {
+            setText(mlbl, `${label} is required`);
+        }
         log(`${label} is required`);
         highlightError(id)
         return null;
@@ -345,7 +343,7 @@ async function revokeCredential() {
 
 async function expireCredential() {
     if (!ensureLoaded(academicRegistry, "Academic Credential Registry")) return;
-    
+
     const credentialId = requireField("expireCredentialId", "Credential ID");
     if (!credentialId) return;
 
