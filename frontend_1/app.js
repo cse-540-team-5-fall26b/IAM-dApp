@@ -92,6 +92,61 @@ async function connectWallet() {
     }
 }
 
+//================== VERIFY INPUTS ==================
+function highlightError(id) {
+    const el = document.getElementById(id);
+    el.style.border = "2px solid red";
+    setTimeout(() => el.style.border = "", 2000);
+}
+
+function requireField(id, label, mlbl = null) {
+    const value = getValue(id);
+
+    if (!value) {
+        if (mlbl !== null) {
+            setText(mlbl, `${label} is required`);
+        }
+        log(`${label} is required`);
+        highlightError(id)
+        return null;
+    }
+
+    return value;
+}
+
+function requireAddress(id, label) {
+    const value = getValue(id);
+
+    if (!value) {
+        log(`${label} is required`);
+        return null;
+    }
+
+    if (!web3.utils.isAddress(value)) {
+        log(`${label} must be a valid address`);
+        return null;
+    }
+
+    return value;
+}
+
+function requireBytes32(id, label) {
+    const value = getValue(id);
+
+    if (!value) {
+        log(`${label} is required`);
+        return null;
+    }
+
+    if (!/^0x[a-fA-F0-9]{64}$/.test(value)) {
+        log(`${label} must be a valid bytes32 (0x + 64 hex chars)`);
+        return null;
+    }
+
+    return value;
+}
+
+
 // ================= LOAD CONTRACTS =================
 async function loadContracts() {
     if (!isConnected) {
@@ -135,6 +190,13 @@ function openSection() {
 async function registerDID() {
     if (!ensureLoaded(didRegistry, "DID Registry")) return;
 
+    const did = requireField("did", "DID");
+    const publicKey = requireField("publicKey", "Public Key");
+    const serviceEndpoint = requireField("serviceEndpoint", "Service Endpoint");
+    const docHash = requireBytes32("docHash", "Document Hash");
+
+    if (!did || !publicKey || !serviceEndpoint || !docHash) return;
+
     try {
         await didRegistry.methods.registerDID(
             getValue("did"),
@@ -167,6 +229,9 @@ async function updateDID() {
 async function deactivateDID() {
     if (!ensureLoaded(didRegistry, "DID Registry")) return;
 
+    const did = requireField("deactivateDid", "DID");
+    if (!did) return;
+
     try {
         await didRegistry.methods.deactivateDID(getValue("deactivateDid")).send({ from: account });
         log("DID Deactivated Successfully");
@@ -177,6 +242,9 @@ async function deactivateDID() {
 
 async function resolveDID() {
     if (!ensureLoaded(didRegistry, "DID Registry")) return;
+
+    const did = requireField("resolveDid", "DID", "resolveResult");
+    if (!did) return;
 
     try {
         const record = await didRegistry.methods.resolveDID(getValue("resolveDid")).call();
@@ -262,6 +330,9 @@ async function issueCredential() {
 async function revokeCredential() {
     if (!ensureLoaded(academicRegistry, "Academic Credential Registry")) return;
 
+    const credentialId = requireField("revokeCredentialId", "Credential ID");
+    if (!credentialId) return;
+
     try {
         await academicRegistry.methods.revokeCredential(getValue("revokeCredentialId")).send({ from: account });
         log("Credential Revoked Successfully");
@@ -272,6 +343,9 @@ async function revokeCredential() {
 
 async function expireCredential() {
     if (!ensureLoaded(academicRegistry, "Academic Credential Registry")) return;
+
+    const credentialId = requireField("expireCredentialId", "Credential ID");
+    if (!credentialId) return;
 
     try {
         await academicRegistry.methods.markCredentialExpired(getValue("expireCredentialId")).send({ from: account });
@@ -284,6 +358,9 @@ async function expireCredential() {
 async function getCredential() {
     if (!ensureLoaded(academicRegistry, "Academic Credential Registry")) return;
 
+    const credentialId = requireField("getCredentialId", "Credential ID", "credentialDetails");
+    if (!credentialId) return;
+
     try {
         const record = await academicRegistry.methods.getCredential(getValue("getCredentialId")).call();
         setText("credentialDetails", JSON.stringify(record, null, 2));
@@ -293,8 +370,11 @@ async function getCredential() {
     }
 }
 
-async function checkValidity() {
+async function checkCredentialValidity() {
     if (!ensureLoaded(academicRegistry, "Academic Credential Registry")) return;
+
+    const credentialId = requireField("checkCredentialId", "Credential ID", "validityResult");
+    if (!credentialId) return;
 
     try {
         const result = await academicRegistry.methods.isCredentialValid(getValue("checkCredentialId")).call();
