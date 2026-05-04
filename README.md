@@ -92,19 +92,19 @@ docs/
 Install dependencies from the project root:
 
 ```bash
-npm install
+npm ci
 ```
 
 Compile the contracts:
 
 ```bash
-npx hardhat compile
+npm run compile
 ```
 
 Run the automated tests:
 
 ```bash
-npx hardhat test
+npm run test
 ```
 
 ## Local Deployment
@@ -112,15 +112,17 @@ npx hardhat test
 Open one terminal and start a local Hardhat blockchain:
 
 ```bash
-npx hardhat node
+npm run node
 ```
 
 Keep this terminal open. It will show local test accounts and private keys.
 
+Copy these to be able to run manual tests.
+
 Open a second terminal and deploy the contracts:
 
 ```bash
-npx hardhat run scripts/deploy.js --network localhost
+npm run deploy
 ```
 
 Copy the three deployed contract addresses printed in the terminal:
@@ -133,7 +135,7 @@ VerificationLog deployed to: 0x...
 
 ## MetaMask Setup
 
-Add the local Hardhat network to MetaMask:
+Add the local Hardhat custom network to the MetaMask browser extension:
 
 ```text
 Network Name: Hardhat Local
@@ -142,15 +144,16 @@ Chain ID: 31337
 Currency Symbol: ETH
 ```
 
-Import one of the Hardhat test accounts into MetaMask using a private key from the `npx hardhat node` terminal output.
+Remember to remove the custom network before testing again. You must select another network to be able to remove the custom network.
+
+Import one of the Hardhat test accounts as a wallet into MetaMask using a private key from the `npm run node` terminal output.
 
 ## Running the Frontend
 
 From the project root:
 
 ```bash
-cd frontend_1
-npx live-server
+npm run serve
 ```
 
 Then open the local browser page, connect MetaMask, paste the deployed contract addresses, and click **Load Contracts**.
@@ -226,7 +229,7 @@ The automated test suite covers:
 Run tests with:
 
 ```bash
-npx hardhat test
+npm run test
 ```
 
 ## Security and Privacy Considerations
