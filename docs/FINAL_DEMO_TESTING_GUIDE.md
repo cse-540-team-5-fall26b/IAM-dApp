@@ -198,7 +198,7 @@ Total Verifications: 1
 
 - Show the GitHub repo structure.
 - Show contracts folder and explain the three contracts.
-- Run `npm run tests` and show passing tests.
+- Run `npm run test` and show passing tests.
 - Start local Hardhat node.
 - Deploy contracts.
 - Use frontend to demonstrate DID registration, credential issuance, credential validity check, and verification logging.
