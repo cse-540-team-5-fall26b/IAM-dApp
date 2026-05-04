@@ -7,7 +7,7 @@ This guide gives the exact local flow to use before recording the final CSE 540 
 Terminal 1:
 
 ```bash
-npx hardhat node
+npm run node
 ```
 
 Keep this terminal open.
@@ -17,8 +17,8 @@ Keep this terminal open.
 Terminal 2:
 
 ```bash
-npx hardhat compile
-npx hardhat run scripts/deploy.js --network localhost
+npm run compile
+npm run deploy
 ```
 
 Copy the deployed addresses for:
@@ -32,8 +32,7 @@ Copy the deployed addresses for:
 Terminal 3:
 
 ```bash
-cd frontend_1
-npx live-server
+npm run serve
 ```
 
 Open the local page in the browser.
@@ -48,7 +47,7 @@ Chain ID: 31337
 Currency: ETH
 ```
 
-Import a Hardhat account using one of the private keys printed by `npx hardhat node`.
+Import a Hardhat account using one of the private keys printed by `npm run node`.
 
 ## 5. Load Contracts
 
@@ -199,7 +198,7 @@ Total Verifications: 1
 
 - Show the GitHub repo structure.
 - Show contracts folder and explain the three contracts.
-- Run `npx hardhat test` and show passing tests.
+- Run `npm run tests` and show passing tests.
 - Start local Hardhat node.
 - Deploy contracts.
 - Use frontend to demonstrate DID registration, credential issuance, credential validity check, and verification logging.
